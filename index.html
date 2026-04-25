@@ -39,14 +39,30 @@
           color below 10 @red
           expc gradient({'0': 'F1C40F', '20': 'F39C12'}, this)
     </script>
+<script>
+        // Funkce pro načtení dat
+        async function loadStats() {
+            try {
+                const response = await fetch('data.csv');
+                if (!response.ok) throw new Error('Soubor data.csv nenalezen');
+                
+                const data = await response.text();
+                
+                // Počkáme sekundu, aby se motor SFTools stihl v prohlížeči "probudit"
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('sftools-run', { detail: data }));
+                    console.log('Data odeslána do tabulky');
+                }, 1000);
+                
+            } catch (err) {
+                console.error('Chyba:', err);
+                document.body.innerHTML += '<p style="color:red">Chyba při načítání dat: ' + err.message + '</p>';
+            }
+        }
 
-    <script>
-        // Tento kód automaticky propojí tvůj soubor s daty a tabulku
-        window.addEventListener('load', () => {
-            // ZDE UPRAV NÁZEV, POKUD SE TVŮJ SOUBOR JMENUJE JINAK NEŽ data.csv
-            fetch('data.csv') 
-                .then(r => r.text())
-                .then(d => window.dispatchEvent(new CustomEvent('sftools-run', { detail: d })));
+        window.addEventListener('load', loadStats);
+    </script>
+   w CustomEvent('sftools-run', { detail: d })));
         });
     </script>
 </body>
