@@ -1,65 +1,52 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html>
 <head>
     <meta charset="utf-8">
-    <title>Statistiky cechu Ring of Mist</title>
+    <title>Ring of Mist Stats</title>
     <script src="https://sftools.mar21.eu/script.js"></script>
 </head>
 <body style="background-color: #111; color: white; padding: 20px; font-family: sans-serif;">
 
-    <div id="status">Iniciuji tabulku z JSON dat...</div>
+    <div id="status">Zpracovávám data cechu...</div>
 
     <script type="text/sftool">
-        # --- GLOBÁLNÍ NASTAVENÍ ---
         statistics off
         theme dark
-        sortable on
-        filter on
-
-        # Dynamické barvy pro Level
-        table set maxLevel as max(map(this, Level))
-        table set minLevel as min(map(this, Level))
-
-        # --- DEFINICE TABULKY ---
+        
         category Character
         alias <b>Členové cechu</b>
-        
         header Name
           alias <b>Jméno</b>
-          width @normal
-
         header Level
-          alias <b>Level</b>
-          expc gradient({minLevel: '28D28C', maxLevel: '2A9D44'}, this)
-        
+          expc gradient({'0': 'white', '500': 'green'}, this)
+
         category Fortress
         alias <b>Pevnost</b>
-
         header Gem Mine
           alias <b>Důl</b>
-          width 70
-          # Podmínka: pod level 10 svítí červeně
           color below 10 @red
-          expc gradient({'0': 'F1C40F', '20': 'F39C12'}, this)
     </script>
 
     <script>
         window.addEventListener('load', async () => {
             const status = document.getElementById('status');
             try {
-                // Načteme tvůj soubor data.csv (který obsahuje JSON)
                 const response = await fetch('data.csv');
-                if (!response.ok) throw new Error('Soubor data.csv nebyl nalezen.');
+                if (!response.ok) throw new Error('Soubor data.csv nenalezen.');
                 
-                const rawData = await response.text();
+                let text = await response.text();
                 
-                // Klíčový moment: Odeslání JSON dat do motoru SFTools
-                window.dispatchEvent(new CustomEvent('sftools-run', { detail: rawData }));
+                // --- OPRAVA DAT ---
+                // Odstraní prázdné znaky na začátku/konci a opraví případné chyby formátu
+                text = text.trim(); 
                 
-                // Po načtení schováme stavový řádek
-                setTimeout(() => { 
-                    status.style.display = 'none'; 
-                }, 1500);
+                status.innerText = 'Vykresluji tabulku...';
+
+                // Pošleme vyčištěná data do motoru
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('sftools-run', { detail: text }));
+                    setTimeout(() => { status.style.display = 'none'; }, 1000);
+                }, 500);
 
             } catch (err) {
                 status.innerHTML = '<b style="color:red">CHYBA: ' + err.message + '</b>';
