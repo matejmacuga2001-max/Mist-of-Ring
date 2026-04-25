@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Statistiky Cechu</title>
+    <script src="https://sftools.mar21.eu/script.js"></script>
+</head>
+<body style="background-color: #111; color: white; font-family: sans-serif;">
+
+    <script type="text/sftool">
+        # --- NASTAVENÍ ---
+        statistics off
+        difference on
+        lined on
+        theme dark
+
+        # Barvy pro levely
+        table set maxLevel as max(map(this, Level))
+        table set minLevel as min(map(this, Level))
+
+        # --- TABULKA ---
+        category Character
+        alias <b>Postava</b>
+        
+        header Name
+          width @normal
+
+        header Level
+          alias <b>Level</b>
+          expc gradient({minLevel: '28D28C', maxLevel: '2A9D44'}, this)
+        
+        category Fortress
+        alias <b>Pevnost</b>
+
+        header Gem Mine
+          alias <b>Důl</b>
+          width 70
+          # Pokud je důl pod 10, svítí červeně
+          color below 10 @red
+          expc gradient({'0': 'F1C40F', '20': 'F39C12'}, this)
+    </script>
+
+    <script>
+        // Tento kód automaticky propojí tvůj soubor s daty a tabulku
+        window.addEventListener('load', () => {
+            // ZDE UPRAV NÁZEV, POKUD SE TVŮJ SOUBOR JMENUJE JINAK NEŽ data.csv
+            fetch('data.csv') 
+                .then(r => r.text())
+                .then(d => window.dispatchEvent(new CustomEvent('sftools-run', { detail: d })));
+        });
+    </script>
+</body>
+</html>
